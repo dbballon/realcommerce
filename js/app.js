@@ -101,13 +101,13 @@ const app = angular.module('movieApp', ['ngRoute'])
         });
         $routeProvider
             .when("/", {
-                templateUrl: "./views/main.html"
+                templateUrl: "views/main.html"
             })
             .when("/resource", {
-                templateUrl: "./views/resource.html"
+                templateUrl: "views/resource.html"
             })
             .otherwise({
-                templateUrl: "./views/main.html"
+                templateUrl: "views/main.html"
             })
 
     });
