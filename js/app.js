@@ -14,9 +14,6 @@ const app = angular.module('movieApp', ['ngRoute'])
         $scope.refresh = function() {
             refresh();
         }
-        $scope.clear = function() {
-            $scope.searchText = '';
-        }
         $scope.sort = function() {
             $scope.sortReverse = !$scope.sortReverse;
         };
@@ -29,38 +26,38 @@ const app = angular.module('movieApp', ['ngRoute'])
         };
 
         function refresh() {
-            loadAResources.LoadAll().then(function(data) {
-                $scope.moviesCount = 0;
-                $scope.seriesCount = 0;
-                $scope.gamesCount = 0;
-                $scope.searchText = '';
-                $scope.resources = data.data.results;
-                $scope.resources.forEach(function(resource) {
-                    if (resource.Type == 'movie') $scope.moviesCount++;
-                    else if (resource.Type == 'series') $scope.seriesCount++;
-                    else if (resource.Type == 'game') $scope.gamesCount++;
-                    resource.imageAvailable = false;
-                    const img = new Image();
-                    img.onload = function() {
-                        resource.imageAvailable = true;
-                        $scope.$apply()
-                    };
-                    img.onerror = function() {
-                        $scope.$apply()
-                    };
-                    if (resource.Poster && resource.Poster != '' && resource.Poster != 'N/A')
-                        img.src = resource.Poster;
-                });
-            }, function(response) {
-                console.log('Error: ', response);
-            });
+            loadAResources.LoadAll($scope);
         }
         refresh();
     }])
     .service('loadResources', function($http) {
         return {
-            LoadAll: function() {
-                return $http.get('data/resources.json');
+            LoadAll: function(scope) {
+                return $http.get('data/resources.json').then(function(data) {
+                    scope.moviesCount = 0;
+                    scope.seriesCount = 0;
+                    scope.gamesCount = 0;
+                    scope.searchText = '';
+                    scope.resources = data.data.results;
+                    scope.resources.forEach(function(resource) {
+                        if (resource.Type == 'movie') scope.moviesCount++;
+                        else if (resource.Type == 'series') scope.seriesCount++;
+                        else if (resource.Type == 'game') scope.gamesCount++;
+                        resource.imageAvailable = false;
+                        const img = new Image();
+                        img.onload = function() {
+                            resource.imageAvailable = true;
+                            scope.$apply()
+                        };
+                        img.onerror = function() {
+                            scope.$apply()
+                        };
+                        if (resource.Poster && resource.Poster != '' && resource.Poster != 'N/A')
+                            img.src = resource.Poster;
+                    });
+                }, function(response) {
+                    console.log('Error: ', response);
+                });
             },
             Update: function(res) {
                 return $http.post('data/resources.json', { imdb: res.imdb, title: res.title })
